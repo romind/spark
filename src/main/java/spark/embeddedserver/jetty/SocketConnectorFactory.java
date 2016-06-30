@@ -16,19 +16,22 @@
  */
 package spark.embeddedserver.jetty;
 
-import java.util.concurrent.TimeUnit;
-
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.ssl.SslStores;
 import spark.utils.Assert;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates socket connectors.
  */
 public class SocketConnectorFactory {
+
+    private static final Logger logger = LoggerFactory.getLogger(SocketConnectorFactory.class);
 
     /**
      * Creates an ordinary, non-secured Jetty server jetty.
@@ -79,9 +82,50 @@ public class SocketConnectorFactory {
             sslContextFactory.setTrustStorePassword(sslStores.trustStorePassword());
         }
 
+
+        moreSecure(sslContextFactory);
         ServerConnector connector = new ServerConnector(server, sslContextFactory);
         initializeConnector(connector, host, port);
         return connector;
+    }
+
+    private static void moreSecure(SslContextFactory sslContextFactory) {
+        String property = System.getProperty("web.server.local");
+        logger.info("System property web.server.local="+property);
+        if (property != null && property.equals("true")){
+            logger.info("Standard security");
+            return;
+        }
+
+        String[] includeCiphers = {
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+        };
+        String[] excludeCiphers = {
+                ".*RC4.*",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_RSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                ".*3DES.*",
+                "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
+                "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+        };
+        sslContextFactory.setIncludeCipherSuites(includeCiphers);
+
+        sslContextFactory.setExcludeCipherSuites(excludeCiphers);
+
+        sslContextFactory.setRenegotiationAllowed(false);
+
+        sslContextFactory.addExcludeProtocols("SSLv3");
+        sslContextFactory.addExcludeProtocols("TLSv1");
+        sslContextFactory.addExcludeProtocols("TLSv1.1");
+        logger.info("High security");
     }
 
     private static void initializeConnector(ServerConnector connector, String host, int port) {

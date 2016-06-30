@@ -87,6 +87,8 @@ public class MatcherFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
+        moreSecure(httpResponse);
+
         // handle static resources
         boolean consumedByStaticFile = staticFiles.consume(httpRequest, httpResponse);
 
@@ -151,7 +153,8 @@ public class MatcherFilter implements Filter {
         if (body.notSet() && !externalContainer) {
             LOG.info("The requested route [" + uri + "] has not been mapped in Spark");
             httpResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            body.set(String.format(NOT_FOUND));
+            body.set(""); //body.set(String.format(NOT_FOUND));
+            response.redirect("/404.html");
         }
 
         if (body.isSet()) {
@@ -160,6 +163,11 @@ public class MatcherFilter implements Filter {
         } else if (chain != null) {
             chain.doFilter(httpRequest, httpResponse);
         }
+    }
+
+    private void moreSecure(HttpServletResponse httpResponse) {
+        httpResponse.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+        httpResponse.setHeader("Server", System.getProperty("web.server.name"));
     }
 
     private String getHttpMethodFrom(HttpServletRequest httpRequest) {

@@ -16,16 +16,20 @@
  */
 package spark.http.matching;
 
-import javax.servlet.http.HttpServletResponse;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.ExceptionHandlerImpl;
 import spark.ExceptionMapper;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Modifies the HTTP response and body based on the provided exception and request/response wrappers.
  */
 final class GeneralError {
 
+    private static final Logger logger = LoggerFactory.getLogger(GeneralError.class);
     private static final String INTERNAL_ERROR = "<html><body><h2>500 Internal Error</h2></body></html>";
 
     /**
@@ -48,7 +52,12 @@ final class GeneralError {
             }
         } else {
             httpResponse.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            body.set(INTERNAL_ERROR);
+            body.set(""); //body.set(INTERNAL_ERROR);
+            try {
+                httpResponse.sendRedirect("/500.html");
+            } catch (IOException e1) {
+                logger.error("Error sending redirect", e1);
+            }
         }
     }
 
