@@ -115,6 +115,27 @@ public class SocketConnectorFactory {
                 "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256",
                 "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
                 "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                "SSL_RSA_WITH_DES_CBC_SHA",
+                "SSL_DHE_RSA_WITH_DES_CBC_SHA",
+                "SSL_DHE_DSS_WITH_DES_CBC_SHA",
+                "SSL_RSA_EXPORT_WITH_RC4_40_MD5",
+                "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                // Disable cipher suites with Diffie-Hellman key exchange to prevent Logjam attack
+                //and avoid the ssl_error_weak_server_ephemeral_dh_key error in recent browsers
+                //http://stackoverflow.com/questions/30523324/how-to-config-local-jetty-ssl-to-avoid-weak-phermeral-dh-key-error
+                "SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA",
+                "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
+                "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256",
+                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA256",
+                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256",
+                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA256",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                "TLS_DHE.*", "TLS_EDH.*"
+
         };
         sslContextFactory.setIncludeCipherSuites(includeCiphers);
 
