@@ -146,6 +146,8 @@ public class SocketConnectorFactory {
         sslContextFactory.addExcludeProtocols("SSLv3");
         sslContextFactory.addExcludeProtocols("TLSv1");
         sslContextFactory.addExcludeProtocols("TLSv1.1");
+
+        logger.info("v4");
         logger.info("High security");
     }
 
